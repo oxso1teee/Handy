@@ -13,7 +13,6 @@ use crate::tray::{change_tray_icon, TrayIconState};
 use crate::utils::{
     self, show_processing_overlay, show_recording_overlay, show_transcribing_overlay,
 };
-use crate::voice_command::{self, VoiceCommandDecision};
 use crate::TranscriptionCoordinator;
 use ferrous_opencc::{config::BuiltinConfig, OpenCC};
 use log::{debug, error, warn};
@@ -807,28 +806,13 @@ impl ShortcutAction for TranscribeAction {
                                 }
                             }
 
-                            // Voice Command Layer hook: give a local server a chance to
-                            // treat the transcription as a command (and suppress the
-                            // paste) or rewrite the text before it's inserted. Fails
-                            // open — see voice_command::intercept.
-                            let final_text = match voice_command::intercept(&processed.final_text)
-                                .await
-                            {
-                                VoiceCommandDecision::Suppress => {
-                                    debug!("Voice command suppressed paste for this transcription");
-                                    utils::hide_recording_overlay(&ah);
-                                    change_tray_icon(&ah, TrayIconState::Idle);
-                                    return;
-                                }
-                                VoiceCommandDecision::Paste(text) => text,
-                            };
-
-                            if final_text.is_empty() {
+                            if processed.final_text.is_empty() {
                                 utils::hide_recording_overlay(&ah);
                                 change_tray_icon(&ah, TrayIconState::Idle);
                             } else {
                                 let ah_clone = ah.clone();
                                 let paste_time = Instant::now();
+                                let final_text = processed.final_text;
                                 let rm_for_paste = Arc::clone(&rm);
                                 ah.run_on_main_thread(move || {
                                     if rm_for_paste.was_cancelled_since(cancel_generation) {

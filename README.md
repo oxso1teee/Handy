@@ -1,6 +1,6 @@
 > **Fork Notice**
 >
-> This is a fork of [cjpais/Handy](https://github.com/cjpais/Handy) (MIT License). This fork adds a voice command / tool-calling layer on top of the ASR pipeline, implemented as a companion service: [oxso1teee/handy-voice-agent-service](https://github.com/oxso1teee/handy-voice-agent-service). This fork's only change for that purpose is a small hook (`src-tauri/src/voice_command.rs`) that POSTs each finished transcription to that service before pasting it — see its README for the parser, tool registry, and security design.
+> This is a fork of [cjpais/Handy](https://github.com/cjpais/Handy) (MIT License).
 
 ---
 
